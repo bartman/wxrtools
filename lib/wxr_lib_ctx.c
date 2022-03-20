@@ -98,8 +98,12 @@ bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error)
 				/* index everything upto this date */
 				success = wxr_index_add(&wxr->index, prev_date,
 							prev, p-prev, error);
-				if (!success)
+				if (!success) {
+					g_prefix_error(error, "%s:%zu: ",
+						       wxr->file_name,
+						       (void*)p - wxr->map);
 					return false;
+				}
 			}
 
 			/* skip this line */
@@ -120,8 +124,12 @@ bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error)
 		/* file ended, but we have one last matched block */
 		success = wxr_index_add(&wxr->index, prev_date,
 					prev, p-prev, error);
-		if (!success)
+		if (!success) {
+			g_prefix_error(error, "%s:%zu: ",
+				       wxr->file_name,
+				       (void*)p - wxr->map);
 			return false;
+		}
 	}
 
 	wxr->indexed = true;

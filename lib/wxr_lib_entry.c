@@ -17,8 +17,10 @@ bool wxr_entry_init(wxr_entry *ent, float weight, unsigned reps, unsigned sets,
 	ent->reps = reps;
 	ent->sets = sets;
 
+#if 0
 	printf("%f x %u x %u\n",
 	       weight, reps, sets);
+#endif
 
 	return true;
 }

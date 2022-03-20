@@ -32,7 +32,7 @@ int wxr_lift_add_line(wxr_lift *lift, const char *text, const char *e,
 	const char *p = text;
 	bool ok;
 
-#if 1
+#if 0
 	const char *le = p;
 	while (le<e && !isvspace(*le))
 		le++;

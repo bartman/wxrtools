@@ -49,7 +49,5 @@ bool wxr_index_add(wxr_index *index, wxr_date date,
 	if (ok)
 		index->count ++;
 
-	exit(1);
-
 	return ok;
 }

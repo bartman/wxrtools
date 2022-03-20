@@ -31,7 +31,9 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 			rc = sscanf(p, "@ %f bw\n%n", &weight, &n);
 			if (rc == 1 && n>6) {
 				ses->body_weight = weight;
+#if 0
 				printf("body_weight = %f\n", weight);
+#endif
 				p += n;
 				continue;
 			}
