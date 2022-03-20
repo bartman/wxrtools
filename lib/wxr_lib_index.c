@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 
 #include "wxr_lib_index.h"
+#include "wxr_lib_session.h"
 
 #include "wxr_types.h"
 #include "wxr_utils.h"
@@ -19,6 +20,8 @@ void wxr_index_init(wxr_index *index)
 
 void wxr_index_cleanup(wxr_index *index)
 {
+	for (size_t i=0; i<index->count; i++)
+		wxr_session_cleanup(index->sessions + i);
 	g_free(index->sessions);
 }
 
@@ -39,11 +42,13 @@ bool wxr_index_add(wxr_index *index, wxr_date date,
 		index->sessions = new;
 	}
 
-	wxr_session *s = index->sessions + (index->count++);
+	wxr_session *s = index->sessions + index->count;
 
-	s->date = date;
-	s->text = text;
-	s->text_len = text_len;
+	bool success = wxr_session_init(s, date, text, text_len, error);
+	if (success)
+		index->count ++;
 
-	return true;
+	exit(1);
+
+	return success;
 }

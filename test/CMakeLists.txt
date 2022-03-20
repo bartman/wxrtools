@@ -2,6 +2,7 @@ enable_testing()
 
 SET(TEST_EXECUTABLES
         test-parse
+        test-session
 )
 
 foreach(test ${TEST_EXECUTABLES})

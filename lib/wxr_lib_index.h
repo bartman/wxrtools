@@ -1,13 +1,7 @@
 #pragma once
 
 #include "wxr_ctx.h"
-
-struct wxr_session_s {
-	wxr_date date;
-	const char *text;
-	size_t text_len;
-};
-typedef struct wxr_session_s wxr_session;
+#include "wxr_types.h"
 
 struct wxr_index_s {
 	size_t size;
