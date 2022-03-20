@@ -12,25 +12,38 @@
 
 void wxr_index_init(wxr_index *index)
 {
+	index->size = 0;
+	index->count = 0;
+	index->sessions = NULL;
 }
 
 void wxr_index_cleanup(wxr_index *index)
 {
+	g_free(index->sessions);
 }
 
 bool wxr_index_add(wxr_index *index, wxr_date date,
-		   const char *str, size_t size, GError **error)
+		   const char *text, size_t text_len, GError **error)
 {
-	static int num = 0;
+	if (index->count >= index->size) {
+		/* need to grow */
+		size_t new_size = index->size + 128;
+		size_t total_size = new_size * sizeof(*index->sessions);
+		gpointer new = g_realloc(index->sessions, total_size);
+		if (!new) {
+			wxr_set_error_errno(error, "realloc index (%zu)",
+					    new_size);
+			return false;
+		}
+		index->size = new_size;
+		index->sessions = new;
+	}
 
-	printf(" --- %u ---\n", num);
-	printf("%04u-%02u-%02u\n", date.year, date.month, date.day);
+	wxr_session *s = index->sessions + (index->count++);
 
-	write(1, str, size);
-
-	num ++;
-	if (num>3)
-		exit(1);
+	s->date = date;
+	s->text = text;
+	s->text_len = text_len;
 
 	return true;
 }

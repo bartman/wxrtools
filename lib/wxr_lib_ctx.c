@@ -127,3 +127,8 @@ bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error)
 	wxr->indexed = true;
 	return true;
 }
+
+size_t wxr_ctx_session_count(wxr_ctx *wxr)
+{
+	return wxr->index.count;
+}

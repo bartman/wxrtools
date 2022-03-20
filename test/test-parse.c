@@ -21,6 +21,10 @@ int main(int argc, char * argv[])
 
 	wxr_ctx_build_index(wxr, &error);
 
+	size_t count = wxr_ctx_session_count(wxr);
+
+	printf("session count %zu\n", count);
+
 	wxr_ctx_close(wxr);
 
 	return 0;

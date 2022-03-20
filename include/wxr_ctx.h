@@ -11,3 +11,5 @@ extern void wxr_ctx_get_contents(wxr_ctx *wxr,
 
 extern bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error);
 
+extern size_t wxr_ctx_session_count(wxr_ctx *wxr);
+
