@@ -5,5 +5,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct wxr_ctx;
+typedef struct wxr_ctx_s wxr_ctx;
 
+typedef union wxr_date_u {
+	uint32_t word;
+	struct {
+		int16_t year;
+		int8_t  month;
+		int8_t  day;
+	};
+} wxr_date;
