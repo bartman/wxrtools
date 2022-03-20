@@ -23,6 +23,7 @@ void wxr_index_cleanup(wxr_index *index)
 	for (size_t i=0; i<index->count; i++)
 		wxr_session_cleanup(index->sessions + i);
 	g_free(index->sessions);
+	index->size = index->count = 0;
 }
 
 bool wxr_index_add(wxr_index *index, wxr_date date,
@@ -44,11 +45,11 @@ bool wxr_index_add(wxr_index *index, wxr_date date,
 
 	wxr_session *s = index->sessions + index->count;
 
-	bool success = wxr_session_init(s, date, text, text_len, error);
-	if (success)
+	bool ok = wxr_session_init(s, date, text, text_len, error);
+	if (ok)
 		index->count ++;
 
 	exit(1);
 
-	return success;
+	return ok;
 }

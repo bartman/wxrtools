@@ -6,21 +6,24 @@
 #include <sys/stat.h>
 
 #include "wxr_lib_session.h"
+#include "wxr_lib_lift.h"
 
 #include "wxr_types.h"
 #include "wxr_utils.h"
 #include "wxr_error.h"
 
-bool wxr_session_init(wxr_session *s, wxr_date date,
+bool wxr_session_init(wxr_session *ses, wxr_date date,
 			     const char *text, size_t text_len, GError **error)
 {
-	s->date = date;
-	s->text = text;
-	s->text_len = text_len;
+	memset(ses, 0, sizeof(*ses));
+
+	ses->date = date;
+	ses->text = text;
+	ses->text_len = text_len;
 
 	const char *p = text;
 	const char *e = text + text_len;
-	g_autofree char *exercise = NULL;
+	wxr_lift *lift = NULL;
 
 	while (p<e) {
 		int rc, n;
@@ -29,7 +32,7 @@ bool wxr_session_init(wxr_session *s, wxr_date date,
 			float weight;
 			rc = sscanf(p, "@ %f bw\n%n", &weight, &n);
 			if (rc == 1 && n>6) {
-				s->body_weight = weight;
+				ses->body_weight = weight;
 				printf("body_weight = %f\n", weight);
 				p += n;
 				continue;
@@ -42,19 +45,19 @@ bool wxr_session_init(wxr_session *s, wxr_date date,
 				q++;
 
 			n = q-p-1;
-			exercise = g_strndup(p+1, n);
-			printf("exercise = %s\n", exercise);
+			g_autofree char *exercise = g_strndup(p+1, n);
 
-			g_free(exercise);
-			exercise=NULL;
+			lift = wxr_session_add_lift(ses, exercise, error);
+			if (!lift)
+				return false;
 
 			p += n;
 			continue;
 		}
 
-		if (isdigit(*p)) {
+		if (lift && isdigit(*p)) {
 
-			n = wxr_session_add_line(s, p, e, error);
+			n = wxr_lift_add_line(lift, p, e, error);
 			if (n < 0)
 				return false;
 
@@ -69,118 +72,39 @@ bool wxr_session_init(wxr_session *s, wxr_date date,
 
 	return true;
 }
-void wxr_session_cleanup(wxr_session *session)
+void wxr_session_cleanup(wxr_session *ses)
 {
+	for (size_t i=0; i<ses->count; i++) {
+		wxr_lift_cleanup(ses->lifts + i);
+	}
+	g_free(ses->lifts);
+	ses->lifts = NULL;
+	ses->size = ses->count = 0;
 }
 
-int wxr_session_add_line(wxr_session *s, const char *text,
-			 const char *e, GError **error)
+wxr_lift * wxr_session_add_lift(wxr_session *ses, const char *exercise,
+				GError **error)
 {
-	const char *p = text;
-
-#if 1
-	const char *le = p;
-	while (le<e && !isvspace(*le))
-		le++;
-	printf("# %.*s\n", (int)(le-p), p);
-
-#endif
-
-	/* split line into words separated by x's
-	 * W,W,W x R,R,R x S,S,S */
-#define MAXG 4
-#define MAXN 10
-	const char *toks[MAXG][MAXN] = {{NULL,},};
-	unsigned tokc[MAXG] = {0,};
-	unsigned g = 0;
-
-	while (p<e) {
-		/* skip leading white space */
-		while (p<e && ishspace(*p))
-			p++;
-
-		/* end of line */
-		if (isvspace(*p))
-			break;
-		if (p>=e || isvspace(*p))
-			break;
-
-		/* number */
-		if (isdigit(*p)) {
-			toks[g][tokc[g]++] = p++;
-
-			while (p<e && isdigit(*p))
-				p++;
-
-			while (p<e && ishspace(*p))
-				p++;
-
-			if (p>=e || isvspace(*p))
-				break;
-
-			if (((p+2)<e) && *p == ',' && (ishspace(p[1])
-						       || isdigit(p[1]))) {
-				p++;
-				if (tokc[g]>=MAXN)
-					break;
-				continue;
-			}
-
-			if (((p+2)<e) && *p == 'x' && (ishspace(p[1])
-						       || isdigit(p[1]))) {
-				p++;
-				g ++;
-				if (g>=MAXG)
-					break;
-				continue;
-			}
-
-			break;
+	if (ses->count >= ses->size) {
+		/* need to grow */
+		size_t new_size = ses->size + 128;
+		size_t total_size = new_size * sizeof(*ses->lifts);
+		gpointer new = g_realloc(ses->lifts, total_size);
+		if (!new) {
+			wxr_set_error_errno(error, "realloc session (%zu)",
+					    new_size);
+			return NULL;
 		}
-
-		break;
-	}
-	if (tokc[g])
-		g++;
-
-	union { float f; unsigned u; } nums[MAXG][MAXN];
-
-	for (unsigned i=0; i<g; i++) {
-		for (unsigned j=0; j<tokc[i]; j++) {
-			const char *q = toks[i][j];
-			while (q<e && isdigit(*q)) q++;
-			if (i==0)
-				nums[i][j].f = atof(toks[i][j]);
-			else
-				nums[i][j].u = atoi(toks[i][j]);
-		}
+		ses->size = new_size;
+		ses->lifts = new;
 	}
 
+	wxr_lift *lift = ses->lifts + ses->count;
 
-	switch (g) {
-	case 0:
-		g_assert_not_reached();
-		return -1;
+	bool ok = wxr_lift_init(lift, exercise, error);
+	if (!ok)
+		return NULL;
 
-	case 1:
-		nums[g][tokc[g]++].u = 1;
-		g++;
-	case 2:
-		nums[g][tokc[g]++].u = 1;
-		g++;
-		break;
-	}
-
-
-	for (unsigned i=0; i<g; i++) {
-		printf(" - i=%u (%u)\n", i, tokc[i]);
-		for (unsigned j=0; j<tokc[i]; j++) {
-			if (i==0)
-				printf("   - [%u][%u] %f\n", i, j, nums[i][j].f);
-			else
-				printf("   - [%u][%u] %u\n", i, j, nums[i][j].u);
-		}
-	}
-
-	return p-text;
+	ses->count ++;
+	return lift;
 }
