@@ -1,5 +1,5 @@
 SET(LIBWXR_SRCS
-        wxr_lib_foo.c
+        wxr_lib_ctx.c
 )
 
 # build a libwxr.so and a libwxr.a
@@ -25,6 +25,7 @@ foreach(wxr wxr_a wxr_so)
 
         TARGET_INCLUDE_DIRECTORIES(${wxr} PUBLIC
                 ${GLIB2_INCLUDE_DIRS}
+                ${BLOT_INCLUDE_DIR}
         )
 
         TARGET_INCLUDE_DIRECTORIES(${wxr} PRIVATE
