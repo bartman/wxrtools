@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 
 #include "wxr_lib_session.h"
 #include "wxr_lib_lift.h"

@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 
-#include "wxr_lib_session.h"
+#include "wxr_lib_lift.h"
+#include "wxr_lib_entry.h"
 
 #include "wxr_types.h"
 #include "wxr_utils.h"
@@ -27,10 +26,11 @@ void wxr_lift_cleanup(wxr_lift *lift)
 	lift->size = lift->count = 0;
 }
 
-int wxr_lift_add_line(wxr_lift *s, const char *text, const char *e,
+int wxr_lift_add_line(wxr_lift *lift, const char *text, const char *e,
 			     GError **error)
 {
 	const char *p = text;
+	bool ok;
 
 #if 1
 	const char *le = p;
@@ -133,12 +133,42 @@ int wxr_lift_add_line(wxr_lift *s, const char *text, const char *e,
 			unsigned reps = nums[1][r].u;
 			for (unsigned s=0; s<tokc[2]; s++) {
 				unsigned sets = nums[2][s].u;
-				printf("%f x %u x %u\n",
-				       weight, reps, sets);
+
+				ok = wxr_lift_add_w_r_s(lift, weight, reps,
+							sets, error);
+				if (!ok)
+					return -1;
 			}
 		}
 	}
 
 	return p-text;
+}
+
+bool wxr_lift_add_w_r_s(wxr_lift *lift, float weight, unsigned reps,
+			unsigned sets, GError **error)
+{
+	if (lift->count >= lift->size) {
+		/* need to grow */
+		size_t new_size = lift->size + 128;
+		size_t total_size = new_size * sizeof(*lift->entries);
+		gpointer new = g_realloc(lift->entries, total_size);
+		if (!new) {
+			wxr_set_error_errno(error, "realloc lift (%zu)",
+					    new_size);
+			return false;
+		}
+		lift->size = new_size;
+		lift->entries = new;
+	}
+
+	wxr_entry *ent = lift->entries + lift->count;
+
+	bool ok = wxr_entry_init(ent, weight, reps, sets, error);
+	if (!ok)
+		return false;
+
+	lift->count ++;
+	return true;
 }
 
