@@ -64,17 +64,27 @@ int main(int argc, char * argv[])
 	if (rc<0)
 		g_error("%s", error->message);
 
-	unsigned days = wxr_date_diff_days(st.pses->date, st.first, &error);
+	float days = wxr_date_diff_days(st.pses->date, st.first, &error);
+	float weeks = days / 7.0;
+	float months = days / (365.25/12);
+	printf("                         %11.1f days    %11.1f weeks %11.1f months\n", days, weeks, months);
+	printf("sessions   = %11.1f %11.1f/day     %11.1f/week  %11.1f/month\n",
+	       (float)st.sessions, st.sessions/days, st.sessions/weeks, st.sessions/months);
 
-	printf("days     = %11u\n", days);
+#define show(name) \
+	printf("%-10s = %11.1f %11.1f/session %11.1f/week  %11.1f/month\n", \
+	       __stringify(name), \
+	       (float)st.name, \
+	       (float)st.name/st.sessions, \
+	       (float)st.name/weeks, \
+	       (float)st.name/months)
 
-	printf("sessions = %11u %11.1f/day\n",     st.sessions, (float)st.sessions/days);
-	printf("lifts    = %11u %11.1f/session\n", st.lifts,    (float)st.lifts/st.sessions);
-	printf("entries  = %11u %11.1f/session\n", st.entries,  (float)st.entries/st.sessions);
+	show(lifts);
+	show(entries);
 
-	printf("sets     = %11zu %11.1f/session\n",   st.sets,    (float)st.sets/st.sessions);
-	printf("reps     = %11zu %11.1f/session\n",   st.reps,    (float)st.reps/st.sessions);
-	printf("tonnage  = %11.1lf %11.1f/session\n", st.tonnage, st.tonnage/st.sessions);
+	show(sets);
+	show(reps);
+	show(tonnage);
 
 	wxr_ctx_close(wxr);
 
