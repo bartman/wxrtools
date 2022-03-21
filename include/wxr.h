@@ -2,3 +2,6 @@
 #include "wxr_utils.h"
 #include "wxr_error.h"
 #include "wxr_ctx.h"
+#include "wxr_index.h"
+#include "wxr_session.h"
+#include "wxr_lift.h"

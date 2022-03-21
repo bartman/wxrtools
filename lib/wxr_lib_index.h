@@ -3,14 +3,6 @@
 #include "wxr_ctx.h"
 #include "wxr_types.h"
 
-struct wxr_index_s {
-	size_t size;
-	size_t count;
-
-	wxr_session *sessions;
-};
-typedef struct wxr_index_s wxr_index;
-
 extern void wxr_index_init(wxr_index *index);
 extern void wxr_index_cleanup(wxr_index *index);
 

@@ -38,8 +38,7 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 				continue;
 			}
 		}
-
-		if (*p == '#') {
+		else if (*p == '#') {
 			const char *q = p+1;
 			while (q<e && *q != '\n')
 				q++;
@@ -51,11 +50,10 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 			if (!lift)
 				return false;
 
-			p += n;
+			p = q+1;
 			continue;
 		}
-
-		if (lift && isdigit(*p)) {
+		else if (lift && isdigit(*p)) {
 
 			n = wxr_lift_add_line(lift, p, e, error);
 			if (n < 0)
@@ -63,6 +61,9 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 
 			if (n > 0)
 				p += n;
+
+		} else {
+			lift = NULL;
 		}
 
 		/* skip this line */

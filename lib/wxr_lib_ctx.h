@@ -14,4 +14,5 @@ struct wxr_ctx_s {
 	wxr_index index;
 };
 
+extern bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error);
 

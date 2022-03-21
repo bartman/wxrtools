@@ -140,3 +140,11 @@ size_t wxr_ctx_session_count(wxr_ctx *wxr)
 {
 	return wxr->index.count;
 }
+
+const wxr_index * wxr_ctx_get_index(wxr_ctx *wxr, GError **error)
+{
+	if (!wxr_ctx_build_index(wxr, error))
+		return NULL;
+
+	return &wxr->index;
+}

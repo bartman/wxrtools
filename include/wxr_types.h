@@ -42,3 +42,8 @@ typedef struct wxr_session_s {
 	wxr_lift *lifts;
 } wxr_session;
 
+typedef struct wxr_index_s {
+	size_t size;
+	size_t count;
+	wxr_session *sessions;
+} wxr_index;

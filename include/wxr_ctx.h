@@ -9,7 +9,5 @@ extern void wxr_ctx_close(wxr_ctx *wxr);
 extern void wxr_ctx_get_contents(wxr_ctx *wxr,
 				 const char **ptr, size_t *size);
 
-extern bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error);
-
+extern const wxr_index * wxr_ctx_get_index(wxr_ctx *wxr, GError **error);
 extern size_t wxr_ctx_session_count(wxr_ctx *wxr);
-
