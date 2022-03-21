@@ -3,6 +3,7 @@ enable_testing()
 SET(TEST_EXECUTABLES
         test-parse
         test-session
+        test-summary
 )
 
 foreach(test ${TEST_EXECUTABLES})

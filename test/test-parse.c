@@ -12,13 +12,6 @@ int main(int argc, char * argv[])
 
 	wxr = wxr_ctx_open(argv[1], &error);
 
-#if 0
-	const char *raw;
-	size_t size;
-	wxr_ctx_get_contents(wxr, &raw, &size);
-	write(1, raw, size);
-#endif
-
 	const wxr_index *index = wxr_ctx_get_index(wxr, &error);
 	if (!index)
 		g_error("%s", error->message);
