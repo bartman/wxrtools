@@ -149,7 +149,7 @@ const wxr_index * wxr_ctx_get_index(wxr_ctx *wxr, GError **error)
 	return &wxr->index;
 }
 
-long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_ctx_enumerate_cb_fn cb_fn,
+long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_enumerate_ent_cb_fn cb_fn,
 		      void *opaque, GError **error)
 {
 	const wxr_index *index = wxr_ctx_get_index(wxr, error);
@@ -160,6 +160,44 @@ long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_ctx_enumerate_cb_fn cb_fn,
 	wxr_index_for_each_session(index, i, ses) {
 		wxr_session_for_each_lift(ses, j, lift) {
 			wxr_lift_for_each_entry(lift, k, ent) {
+				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
+				if (rc<0)
+					return rc;
+				count ++;
+			}
+		}
+	}
+
+	return count;
+}
+
+long wxr_ctx_filter_enumerate(wxr_ctx *wxr,
+			      wxr_filter_ses_cb_fn filter_ses,
+			      wxr_filter_lift_cb_fn filter_lift,
+			      wxr_filter_ent_cb_fn filter_ent,
+			      wxr_enumerate_ent_cb_fn cb_fn,
+			      void *opaque, GError **error)
+{
+	const wxr_index *index = wxr_ctx_get_index(wxr, error);
+	if (!index)
+		return -1;
+
+	long count = 0, rc;
+	wxr_index_for_each_session(index, i, ses) {
+		rc = filter_ses(wxr, ses, opaque, error);
+		if (rc<0) return rc;
+		if (!rc) continue;
+
+		wxr_session_for_each_lift(ses, j, lift) {
+			rc = filter_lift(wxr, lift, opaque, error);
+			if (rc<0) return rc;
+			if (!rc) continue;
+
+			wxr_lift_for_each_entry(lift, k, ent) {
+				rc = filter_ent(wxr, ent, opaque, error);
+				if (rc<0) return rc;
+				if (!rc) continue;
+
 				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
 				if (rc<0)
 					return rc;
