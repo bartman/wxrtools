@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 
 #include "wxr_lib_ctx.h"
-#include "wxr_ctx.h"
+#include "wxr.h"
 
 #include "wxr_utils.h"
 #include "wxr_error.h"
@@ -147,4 +147,26 @@ const wxr_index * wxr_ctx_get_index(wxr_ctx *wxr, GError **error)
 		return NULL;
 
 	return &wxr->index;
+}
+
+long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_ctx_enumerate_cb_fn cb_fn,
+		      void *opaque, GError **error)
+{
+	const wxr_index *index = wxr_ctx_get_index(wxr, error);
+	if (!index)
+		return -1;
+
+	long count = 0, rc;
+	wxr_index_for_each_session(index, i, ses) {
+		wxr_session_for_each_lift(ses, j, lift) {
+			wxr_lift_for_each_entry(lift, k, ent) {
+				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
+				if (rc<0)
+					return rc;
+				count ++;
+			}
+		}
+	}
+
+	return count;
 }
