@@ -57,27 +57,18 @@ long process(const wxr_ctx *wxr,
 	return 1;
 }
 
-int main(int argc, char * argv[])
+void do_one(wxr_ctx *wxr, const char *match)
 {
 	g_autoptr(GError) error = NULL;
-	wxr_ctx *wxr;
-
-	g_assert_cmpint(argc, ==, 3);
-
-	wxr = wxr_ctx_open(argv[1], &error);
-	if (!wxr)
-		g_error("%s", error->message);
-
-	struct state st = { .match = argv[2] };
+	struct state st = { .match = match };
 	long rc = wxr_ctx_filter_enumerate(wxr,
 				   filter_ses, filter_lift,
 				   process, &st, &error);
-
 	if (rc<0)
 		g_error("%s", error->message);
 
-	printf("rc=%ld\n", rc);
-	printf("best_1rm = %.1f\n", st.best_1rm);
+	printf("%ld entries considered to find best 1RM of %.1f\n",
+	       rc, st.best_1rm);
 
 	if (st.best_1rm) {
 		wxr_session_fprintf(stdout, st.best_ses);
@@ -86,6 +77,33 @@ int main(int argc, char * argv[])
 		puts("");
 		wxr_entry_fprintf(stdout, st.best_ent);
 		puts("");
+	}
+}
+
+int main(int argc, char * argv[])
+{
+	g_autoptr(GError) error = NULL;
+	wxr_ctx *wxr;
+
+	g_assert_cmpint(argc, >=, 2);
+
+	wxr = wxr_ctx_open(argv[1], &error);
+	if (!wxr)
+		g_error("%s", error->message);
+
+	if (argc == 2) {
+		puts("========== squat ==========");
+		do_one(wxr, "#sq");
+		puts("========== bench ==========");
+		do_one(wxr, "#bp");
+		puts("========== deadlift ==========");
+		do_one(wxr, "#dl");
+		puts("========== OHP ==========");
+		do_one(wxr, "#ohp");
+	} else {
+
+		for (int i = 2; i<argc; i++)
+			do_one(wxr, argv[i]);
 	}
 
 	wxr_ctx_close(wxr);
