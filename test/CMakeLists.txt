@@ -4,6 +4,7 @@ SET(TEST_EXECUTABLES
         test-parse
         test-session
         test-summary
+        test-best
 )
 
 foreach(test ${TEST_EXECUTABLES})

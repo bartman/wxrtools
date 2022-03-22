@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "wxr_config.h"
+
 typedef struct wxr_ctx_s wxr_ctx;
 
 typedef union wxr_date_u {
@@ -32,6 +34,7 @@ typedef struct wxr_lift_s {
 
 typedef struct wxr_session_s {
 	wxr_date date;
+
 	const char *text;
 	size_t text_len;
 

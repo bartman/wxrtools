@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "wxr.h"
+
 #include "wxr_lib_lift.h"
 #include "wxr_lib_entry.h"
 
@@ -172,3 +174,27 @@ bool wxr_lift_add_w_r_s(wxr_lift *lift, float weight, unsigned reps,
 	return true;
 }
 
+float wxr_lift_best_1rm(const wxr_lift *lift, const wxr_entry **out_ent)
+{
+	const wxr_entry *best_ent = NULL;
+	float best_1rm = 0;
+
+	wxr_lift_for_each_entry(lift, i, ent) {
+		float ent_1rm = wxr_entry_1rm(ent);
+		if (best_1rm > ent_1rm) {
+			best_1rm = ent_1rm;
+			best_ent = ent;
+		}
+	}
+
+	if (out_ent)
+		*out_ent = best_ent;
+
+	return best_1rm;
+}
+
+int wxr_lift_fprintf(FILE *out, const wxr_lift *lift)
+{
+	return fprintf(out, "Lift { %s }",
+		       lift->name);
+}

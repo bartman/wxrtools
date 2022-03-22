@@ -1,3 +1,4 @@
+#include "wxr_config.h"
 #include "wxr_types.h"
 #include "wxr_utils.h"
 #include "wxr_error.h"
@@ -6,3 +7,4 @@
 #include "wxr_index.h"
 #include "wxr_session.h"
 #include "wxr_lift.h"
+#include "wxr_entry.h"

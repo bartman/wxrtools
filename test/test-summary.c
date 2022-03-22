@@ -4,9 +4,9 @@
 #include "wxr.h"
 
 struct state {
-	wxr_session *pses;
-	wxr_lift *plift;
-	wxr_entry *pent;
+	const wxr_session *pses;
+	const wxr_lift *plift;
+	const wxr_entry *pent;
 
 	wxr_date first;
 
@@ -19,10 +19,10 @@ struct state {
 	double tonnage;
 };
 
-long process(wxr_ctx *wxr,
-	     wxr_session *ses,
-	     wxr_lift *lift,
-	     wxr_entry *ent,
+long process(const wxr_ctx *wxr,
+	     const wxr_session *ses,
+	     const wxr_lift *lift,
+	     const wxr_entry *ent,
 	     void *opaque,
 	     GError **error)
 {

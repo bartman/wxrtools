@@ -65,7 +65,7 @@ void wxr_ctx_close(wxr_ctx *wxr)
 	g_free(wxr);
 }
 
-void wxr_ctx_get_contents(wxr_ctx *wxr,
+void wxr_ctx_get_contents(const wxr_ctx *wxr,
 			  const char **ptr, size_t *size)
 {
 	*ptr = wxr->map;
@@ -136,7 +136,7 @@ bool wxr_ctx_build_index(wxr_ctx *wxr, GError **error)
 	return true;
 }
 
-size_t wxr_ctx_session_count(wxr_ctx *wxr)
+size_t wxr_ctx_session_count(const wxr_ctx *wxr)
 {
 	return wxr->index.count;
 }
@@ -149,10 +149,10 @@ const wxr_index * wxr_ctx_get_index(wxr_ctx *wxr, GError **error)
 	return &wxr->index;
 }
 
-long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_enumerate_ent_cb_fn cb_fn,
+long wxr_ctx_enumerate(const wxr_ctx *wxr, wxr_enumerate_ent_cb_fn cb_fn,
 		      void *opaque, GError **error)
 {
-	const wxr_index *index = wxr_ctx_get_index(wxr, error);
+	const wxr_index *index = wxr_ctx_get_index((wxr_ctx*)wxr, error);
 	if (!index)
 		return -1;
 
@@ -161,8 +161,8 @@ long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_enumerate_ent_cb_fn cb_fn,
 		wxr_session_for_each_lift(ses, j, lift) {
 			wxr_lift_for_each_entry(lift, k, ent) {
 				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
-				if (rc<0)
-					return rc;
+				if (rc<0) return rc;
+				if (!rc) continue;
 				count ++;
 			}
 		}
@@ -171,14 +171,13 @@ long wxr_ctx_enumerate(wxr_ctx *wxr, wxr_enumerate_ent_cb_fn cb_fn,
 	return count;
 }
 
-long wxr_ctx_filter_enumerate(wxr_ctx *wxr,
+long wxr_ctx_filter_enumerate(const wxr_ctx *wxr,
 			      wxr_filter_ses_cb_fn filter_ses,
 			      wxr_filter_lift_cb_fn filter_lift,
-			      wxr_filter_ent_cb_fn filter_ent,
 			      wxr_enumerate_ent_cb_fn cb_fn,
 			      void *opaque, GError **error)
 {
-	const wxr_index *index = wxr_ctx_get_index(wxr, error);
+	const wxr_index *index = wxr_ctx_get_index((wxr_ctx*)wxr, error);
 	if (!index)
 		return -1;
 
@@ -194,13 +193,9 @@ long wxr_ctx_filter_enumerate(wxr_ctx *wxr,
 			if (!rc) continue;
 
 			wxr_lift_for_each_entry(lift, k, ent) {
-				rc = filter_ent(wxr, ent, opaque, error);
+				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
 				if (rc<0) return rc;
 				if (!rc) continue;
-
-				rc = cb_fn(wxr, ses,  lift, ent, opaque, error);
-				if (rc<0)
-					return rc;
 				count ++;
 			}
 		}

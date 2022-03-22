@@ -109,3 +109,10 @@ wxr_lift * wxr_session_add_lift(wxr_session *ses, const char *exercise,
 	ses->count ++;
 	return lift;
 }
+
+int wxr_session_fprintf(FILE *out, const wxr_session *ses)
+{
+	return fprintf(out, "Session { %04u-%02u-%02u @ %.1f }",
+		       ses->date.year, ses->date.month, ses->date.day,
+		       ses->body_weight);
+}
