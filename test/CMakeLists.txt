@@ -5,6 +5,7 @@ SET(TEST_EXECUTABLES
         test-session
         test-summary
         test-best
+        test-table
 )
 
 foreach(test ${TEST_EXECUTABLES})
