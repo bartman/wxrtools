@@ -4,6 +4,8 @@
 
 #include "wxr.h"
 
+#include "blot_color.h"
+
 #define MAX_REPS 10
 
 struct record {
@@ -148,7 +150,17 @@ void do_one(wxr_ctx *wxr, const char *match)
 		       rec->ses->body_weight,
 		       rec->lift->name,
 		       rec->best_1rm);
-		wxr_entry_fprintf(stdout, rec->best_ent);
+		for (int r=1; r<=MAX_REPS; r++) {
+			if (r == rec->best_ent->reps) {
+				printf("%.f |",
+				       rec->best_ent->weight);
+				continue;
+			}
+			printf("%s%.f%s |",
+			       fg(BRIGHT_BLACK),
+			       wxr_weight_from_1rm_reps(rec->best_1rm, r),
+			       COL_RESET);
+		}
 		puts("");
 	}
 

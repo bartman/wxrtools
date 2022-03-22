@@ -5,6 +5,7 @@ SET(LIBWXR_SRCS
         wxr_lib_session.c
         wxr_lib_lift.c
         wxr_lib_entry.c
+        wxr_lib_1rm.c
 )
 
 # build a libwxr.so and a libwxr.a

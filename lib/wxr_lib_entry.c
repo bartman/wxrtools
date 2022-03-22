@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "wxr.h"
+
 #include "wxr_lib_entry.h"
 
 #include "wxr_types.h"
@@ -31,28 +33,7 @@ void wxr_entry_cleanup(wxr_entry *ent)
 
 float wxr_entry_1rm(const wxr_entry *ent)
 {
-	if (ent->weight == 0)
-		return 0;
-	if (ent->reps == 1)
-		return ent->weight;
-
-	/* https://en.wikipedia.org/wiki/One-repetition_maximum */
-
-#if defined(ONE_REP_MAX_EPLEY)
-	return ent->weight * (1.0 + (ent->reps / 30.0));
-#elif defined(ONE_REP_MAX_BRZYCKI)
-	return ent->weight * (36.0 / (37.0 - ent->reps));
-#elif defined(ONE_REP_MAX_LOMBARDI)
-	return ent->weight * pow(ent->reps, 0.1);
-#elif defined(ONE_REP_MAX_MAYHEW)
-	return (100.0 * ent->weight) / (52.2 + 41.9 * exp(-0.055 * ent->reps));
-#elif defined(ONE_REP_MAX_OCONNER)
-	return ent->weight * (1.0 + (ent->reps / 40.0));
-#elif defined(ONE_REP_MAX_WATHEN)
-	return (100.0 * ent->weight)  / (48.80 + 53.8 * exp(-0.75 * ent->reps));
-#else
-#error(ONE_REP_MAX_ not specified)
-#endif
+	return wxr_1rm_from_weight_reps(ent->weight, ent->reps);
 }
 
 float wxr_entry_total_volume(const wxr_entry *ent)

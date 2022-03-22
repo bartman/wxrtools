@@ -8,3 +8,4 @@
 #include "wxr_session.h"
 #include "wxr_lift.h"
 #include "wxr_entry.h"
+#include "wxr_1rm.h"
