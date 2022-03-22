@@ -55,6 +55,11 @@ float wxr_entry_1rm(const wxr_entry *ent)
 #endif
 }
 
+float wxr_entry_total_volume(const wxr_entry *ent)
+{
+	return ent->weight * ent->reps * ent->sets;
+}
+
 int wxr_entry_fprintf(FILE *out, const wxr_entry *ent)
 {
 	return fprintf(out, "Entry { %.1f x %u x %u }",

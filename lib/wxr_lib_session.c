@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include "wxr.h"
+
 #include "wxr_lib_session.h"
 #include "wxr_lib_lift.h"
 
@@ -108,6 +110,16 @@ wxr_lift * wxr_session_add_lift(wxr_session *ses, const char *exercise,
 
 	ses->count ++;
 	return lift;
+}
+
+float wxr_session_total_volume(const wxr_session *ses)
+{
+	float volume = 0.0;
+
+	wxr_session_for_each_lift(ses, i, lift)
+		volume += wxr_lift_total_volume(lift);
+
+	return volume;
 }
 
 int wxr_session_fprintf(FILE *out, const wxr_session *ses)

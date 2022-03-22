@@ -7,4 +7,6 @@
 
 extern float wxr_entry_1rm(const wxr_entry *ent);
 
+extern float wxr_entry_total_volume(const wxr_entry *ent);
+
 extern int wxr_entry_fprintf(FILE *out, const wxr_entry *ent);

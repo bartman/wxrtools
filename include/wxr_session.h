@@ -9,4 +9,6 @@
 	for(size_t _i = 0; _i < (_ses)->count; _i++) \
 	for(const wxr_lift *_lift = (_ses)->lifts + _i; _lift; _lift = NULL)
 
+extern float wxr_session_total_volume(const wxr_session *ses);
+
 extern int wxr_session_fprintf(FILE *out, const wxr_session *ses);

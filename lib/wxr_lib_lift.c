@@ -193,6 +193,16 @@ float wxr_lift_best_1rm(const wxr_lift *lift, const wxr_entry **out_ent)
 	return best_1rm;
 }
 
+float wxr_lift_total_volume(const wxr_lift *lift)
+{
+	float volume = 0.0;
+
+	wxr_lift_for_each_entry(lift, i, ent)
+		volume += wxr_entry_total_volume(ent);
+
+	return volume;
+}
+
 int wxr_lift_fprintf(FILE *out, const wxr_lift *lift)
 {
 	return fprintf(out, "Lift { %s }",
