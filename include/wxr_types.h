@@ -12,9 +12,15 @@ typedef struct wxr_ctx_s wxr_ctx;
 typedef union wxr_date_u {
 	uint32_t word;
 	struct {
+#if __BYTE_ORDER == __BIG_ENDIAN
 		int16_t year;
 		int8_t  month;
 		int8_t  day;
+#else
+		int8_t  day;
+		int8_t  month;
+		int16_t year;
+#endif
 	};
 } wxr_date;
 

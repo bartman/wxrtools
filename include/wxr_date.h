@@ -8,5 +8,6 @@ extern int wxr_date_to_time(wxr_date date, time_t *t, GError **error);
 extern long wxr_date_diff_seconds(wxr_date first, wxr_date second, GError **error);
 extern int wxr_date_diff_days(wxr_date first, wxr_date second, GError **error);
 
-extern int wxr_date_number(wxr_date date);
+extern uint64_t wxr_date_number(wxr_date date);
 extern int wxr_date_to_str(wxr_date date, char *str, size_t size);
+extern int wxr_date_compare(wxr_date first, wxr_date second);

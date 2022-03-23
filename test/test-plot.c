@@ -28,6 +28,7 @@ static inline bool record_used(struct record *rec)
 }
 
 struct state {
+	wxr_date d0, d1;
 	const char * match;
 
 	const wxr_session *curr_ses;
@@ -39,10 +40,13 @@ struct state {
 	GList *records;
 };
 
-static void state_init(struct state *st, const char *match)
+static void state_init(struct state *st, wxr_date d0, wxr_date d1,
+		       const char *match)
 {
 	memset(st, 0, sizeof(*st));
 
+	st->d0 = d0;
+	st->d1 = d1;
 	st->match = match;
 	st->records = NULL;
 }
@@ -60,6 +64,19 @@ static long filter_ses(const wxr_ctx *wxr, const wxr_session *ses,
 		       void *opaque, GError **error)
 {
 	struct state *st = opaque;
+
+	printf("%04hu-%02hhu-%02hhu <%d>  %04hu-%02hhu-%02hhu  <%d>  %04hu-%02hhu-%02hhu\n",
+	       st->d0.year, st->d0.month, st->d0.day,
+	       wxr_date_compare(st->d0, ses->date),
+	       ses->date.year, ses->date.month, ses->date.day,
+	       wxr_date_compare(st->d1, ses->date),
+	       st->d1.year, st->d1.month, st->d1.day);
+
+	if (wxr_date_compare(st->d0, ses->date) >= 0)
+		return 0;
+
+	if (wxr_date_compare(st->d1, ses->date) <= 0)
+		return 0;
 
 	st->curr_ses = ses;
 
@@ -173,12 +190,12 @@ void plot_one(blot_color col, const char *name, blot_data_type data_type,
 	blot_figure_delete(fig);
 }
 
-void do_one(wxr_ctx *wxr, const char *match)
+void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 {
 	g_autoptr(GError) error = NULL;
 	struct state st;
 
-	state_init(&st, match);
+	state_init(&st, d0, d1, match);
 
 	long rc = wxr_ctx_filter_enumerate(wxr,
 				   filter_ses, filter_lift,
@@ -203,6 +220,9 @@ void do_one(wxr_ctx *wxr, const char *match)
 
 	size_t xlabel_count = (cols*0.8)/15;
 	char    **datelabels  = g_malloc_strv(st.count, 16);
+
+	if (xlabel_count>st.count)
+		xlabel_count = st.count;
 
 	unsigned d = 0;
 	unsigned i = 0;
@@ -280,19 +300,57 @@ int main(int argc, char * argv[])
 	if (!wxr)
 		g_error("%s", error->message);
 
+	wxr_date d0={.word=0}, d1={.word=-1};
+
 	if (argc == 2) {
 		puts("========== squat ==========");
-		do_one(wxr, "#sq");
+		do_one(wxr, d0, d1, "#sq");
 		puts("========== bench ==========");
-		do_one(wxr, "#bp");
+		do_one(wxr, d0, d1, "#bp");
 		puts("========== deadlift ==========");
-		do_one(wxr, "#dl");
+		do_one(wxr, d0, d1, "#dl");
 		puts("========== OHP ==========");
-		do_one(wxr, "#ohp");
+		do_one(wxr, d0, d1, "#ohp");
 	} else {
 
-		for (int i = 2; i<argc; i++)
-			do_one(wxr, argv[i]);
+		for (int i = 2; i<argc; i++) {
+			char *str = argv[i];
+
+			char *ch = index(str, ':');
+			if (ch) {
+				d0.word = 0;
+				d1.word = 0;
+
+				int rc = sscanf(str, "%04hu-%02hhu-%02hhu:",
+						&d0.year, &d0.month, &d0.day);
+				switch (rc) {
+				default:
+					d0.year = 0;
+				case 1:
+					d0.month = 0;
+				case 2:
+					d0.day = 0;
+				case 3:
+					break;
+				}
+
+				rc = sscanf(ch+1, "%04hu-%02hhu-%02hhu:",
+						&d1.year, &d1.month, &d1.day);
+				switch (rc) {
+				default:
+					d1.year = 0xFFFF;
+				case 1:
+					d1.month = 0xFF;
+				case 2:
+					d1.day = 0xFF;
+				case 3:
+					break;
+				}
+				continue;
+			}
+
+			do_one(wxr, d0, d1, str);
+		}
 	}
 
 	wxr_ctx_close(wxr);

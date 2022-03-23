@@ -54,11 +54,18 @@ int wxr_date_diff_days(wxr_date first, wxr_date second, GError **error)
 	return diff / (24L*60*60);
 }
 
-int wxr_date_number(wxr_date date)
+uint64_t wxr_date_number(wxr_date date)
 {
-	return ((unsigned)date.year * 10000)
-		+ ((unsigned)date.month * 10)
-		+ (unsigned)date.day;
+	return ((uint64_t)date.year * 10000uL)
+		+ ((uint64_t)date.month * 100uL)
+		+ (uint64_t)date.day;
+}
+
+/* returns -1 if first<second, +1 if first>second, and 0 if equal */
+int wxr_date_compare(wxr_date first, wxr_date second)
+{
+	return first.word < second.word ? -1 :
+	       first.word > second.word ? +1 : 0;
 }
 
 int wxr_date_to_str(wxr_date date, char *str, size_t size)
