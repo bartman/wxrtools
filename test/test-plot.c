@@ -190,7 +190,7 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	if (rc<0)
 		g_error("%s", error->message);
 
-	printf("count = %u\n", st.count);
+	printf("%s count = %u\n", match, st.count);
 
 	st.records = g_list_sort(st.records, record_comar_date);
 

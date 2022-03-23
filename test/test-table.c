@@ -144,14 +144,14 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	if (rc<0)
 		g_error("%s", error->message);
 
-	printf("count = %u\n", st.count);
+	printf("%s count = %u\n", match, st.count);
 
 	st.records = g_list_sort(st.records, record_comar);
 
 	for (GList *e = g_list_first(st.records); e; e = e->next) {
 		struct record *rec = e->data;
 
-		printf("%04u-%02u-%02u  | %.1f | %-*s | %5.1f | ",
+		printf("%04u-%02u-%02u  | %5.1f | %-*s | %5.1f |",
 		       rec->ses->date.year,
 		       rec->ses->date.month,
 		       rec->ses->date.day,
@@ -172,6 +172,17 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		}
 		puts("");
 	}
+
+	printf("%-10s  | %-5s | %-*s | %5s |",
+	       "date",
+	       "BW",
+	       st.max_lift_width,
+	       "lift",
+	       "1RM");
+	for (int r=1; r<=MAX_REPS; r++) {
+		printf(" %3u |", r);
+	}
+	puts("");
 
 	state_cleanup(&st);
 }
