@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <glib.h>
 #include <time.h>
 #include <stdio.h>
@@ -5,6 +6,8 @@
 #include "wxr_date.h"
 #include "wxr_types.h"
 #include "wxr_error.h"
+
+#define WXR_DATE_FORMAT "%04hu-%02hhu-%02hhu"
 
 int wxr_date_to_tm(wxr_date date, struct tm *tm, GError **error)
 {
@@ -23,7 +26,7 @@ int wxr_date_to_time(wxr_date date, time_t *t, GError **error)
 
 	*t = mktime(&tm);
 	RETURN_ERROR(*t == (time_t)-1, -1, error,
-		     "mktime(%04u-%02u-%02u)",
+		     "mktime("WXR_DATE_FORMAT")",
 		     date.year, date.month, date.day);
 
 	return 0;
@@ -70,7 +73,41 @@ int wxr_date_compare(wxr_date first, wxr_date second)
 
 int wxr_date_to_str(wxr_date date, char *str, size_t size)
 {
-	return snprintf(str, size,
-			"%04u-%02u-%02u",
+	return snprintf(str, size, WXR_DATE_FORMAT,
 			date.year, date.month, date.day);
+}
+
+int wxr_date_parse_loosely(wxr_date *date, const char *str, bool end)
+{
+	date->word = end ? -1 : 0;
+
+	int rc = sscanf(str, WXR_DATE_FORMAT,
+			&date->year, &date->month, &date->day);
+#if 0
+	switch (rc) {
+	default:
+		date->year = end ? -1 : 0;
+	case 1:
+		date->month = end ? -1 : 0;
+	case 2:
+		date->day = end ? -1 : 0;
+	case 3:
+		break;
+	}
+#endif
+	return rc;
+}
+
+int wxr_date_range_parse_loosely(wxr_date *d0, wxr_date *d1, const char *str)
+{
+	char *ch = index(str, ':');
+	if (!ch)
+		return -ENOENT;
+
+	char *s0 = strndupa(str, ch-str);
+	char *s1 = ch + 1;
+
+	wxr_date_parse_loosely(d0, s0, false);
+	wxr_date_parse_loosely(d1, s1, false);
+	return 0;
 }

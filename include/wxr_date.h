@@ -11,3 +11,6 @@ extern int wxr_date_diff_days(wxr_date first, wxr_date second, GError **error);
 extern uint64_t wxr_date_number(wxr_date date);
 extern int wxr_date_to_str(wxr_date date, char *str, size_t size);
 extern int wxr_date_compare(wxr_date first, wxr_date second);
+
+extern int wxr_date_parse_loosely(wxr_date *date, const char *str, bool end);
+extern int wxr_date_range_parse_loosely(wxr_date *d0, wxr_date *d1, const char *str);

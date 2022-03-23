@@ -16,6 +16,7 @@ struct record {
 };
 
 struct state {
+	wxr_date d0, d1;
 	const char * match;
 
 	const wxr_session *curr_ses;
@@ -27,10 +28,13 @@ struct state {
 	GList *records;
 };
 
-static void state_init(struct state *st, const char *match)
+static void state_init(struct state *st, wxr_date d0, wxr_date d1,
+		       const char *match)
 {
 	memset(st, 0, sizeof(*st));
 
+	st->d0 = d0;
+	st->d1 = d1;
 	st->match = match;
 	st->records = NULL;
 }
@@ -48,6 +52,12 @@ static long filter_ses(const wxr_ctx *wxr, const wxr_session *ses,
 		       void *opaque, GError **error)
 {
 	struct state *st = opaque;
+
+	if (wxr_date_compare(st->d0, ses->date) >= 0)
+		return 0;
+
+	if (wxr_date_compare(st->d1, ses->date) <= 0)
+		return 0;
 
 	st->curr_ses = ses;
 
@@ -123,12 +133,12 @@ int record_comar(const void *va, const void *vb)
 		diff > 0 ? 1 : 0;
 }
 
-void do_one(wxr_ctx *wxr, const char *match)
+void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 {
 	g_autoptr(GError) error = NULL;
 	struct state st;
 
-	state_init(&st, match);
+	state_init(&st, d0, d1, match);
 
 	long rc = wxr_ctx_filter_enumerate(wxr,
 				   filter_ses, filter_lift,
@@ -171,6 +181,7 @@ int main(int argc, char * argv[])
 {
 	g_autoptr(GError) error = NULL;
 	wxr_ctx *wxr;
+	int rc;
 
 	g_assert_cmpint(argc, >=, 2);
 
@@ -178,19 +189,26 @@ int main(int argc, char * argv[])
 	if (!wxr)
 		g_error("%s", error->message);
 
+	wxr_date d0={.word=0}, d1={.word=-1};
+
 	if (argc == 2) {
 		puts("========== squat ==========");
-		do_one(wxr, "#sq");
+		do_one(wxr, d0, d1, "#sq");
 		puts("========== bench ==========");
-		do_one(wxr, "#bp");
+		do_one(wxr, d0, d1, "#bp");
 		puts("========== deadlift ==========");
-		do_one(wxr, "#dl");
+		do_one(wxr, d0, d1, "#dl");
 		puts("========== OHP ==========");
-		do_one(wxr, "#ohp");
+		do_one(wxr, d0, d1, "#ohp");
 	} else {
 
-		for (int i = 2; i<argc; i++)
-			do_one(wxr, argv[i]);
+		for (int i = 2; i<argc; i++) {
+			rc = wxr_date_range_parse_loosely(&d0, &d1, argv[i]);
+			if (rc == 0)
+				continue;
+
+			do_one(wxr, d0, d1, argv[i]);
+		}
 	}
 
 	wxr_ctx_close(wxr);

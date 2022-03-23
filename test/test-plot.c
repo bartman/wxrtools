@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,13 +65,6 @@ static long filter_ses(const wxr_ctx *wxr, const wxr_session *ses,
 		       void *opaque, GError **error)
 {
 	struct state *st = opaque;
-
-	printf("%04hu-%02hhu-%02hhu <%d>  %04hu-%02hhu-%02hhu  <%d>  %04hu-%02hhu-%02hhu\n",
-	       st->d0.year, st->d0.month, st->d0.day,
-	       wxr_date_compare(st->d0, ses->date),
-	       ses->date.year, ses->date.month, ses->date.day,
-	       wxr_date_compare(st->d1, ses->date),
-	       st->d1.year, st->d1.month, st->d1.day);
 
 	if (wxr_date_compare(st->d0, ses->date) >= 0)
 		return 0;
@@ -154,7 +148,8 @@ void plot_one(blot_color col, const char *name, blot_data_type data_type,
 
 	blot_render_flags flags = 0;
 	flags |= BLOT_RENDER_BRAILLE;
-	flags |= BLOT_RENDER_LEGEND_BELOW;
+	//flags |= BLOT_RENDER_LEGEND_BELOW;
+	flags |= BLOT_RENDER_LEGEND_ABOVE;
 	//flags |= BLOT_RENDER_NO_X_AXIS;
 	//flags |= BLOT_RENDER_NO_Y_AXIS;
 
@@ -291,6 +286,7 @@ int main(int argc, char * argv[])
 {
 	g_autoptr(GError) error = NULL;
 	wxr_ctx *wxr;
+	int rc;
 
 	g_assert_cmpint(argc, >=, 2);
 
@@ -314,42 +310,11 @@ int main(int argc, char * argv[])
 	} else {
 
 		for (int i = 2; i<argc; i++) {
-			char *str = argv[i];
-
-			char *ch = index(str, ':');
-			if (ch) {
-				d0.word = 0;
-				d1.word = 0;
-
-				int rc = sscanf(str, "%04hu-%02hhu-%02hhu:",
-						&d0.year, &d0.month, &d0.day);
-				switch (rc) {
-				default:
-					d0.year = 0;
-				case 1:
-					d0.month = 0;
-				case 2:
-					d0.day = 0;
-				case 3:
-					break;
-				}
-
-				rc = sscanf(ch+1, "%04hu-%02hhu-%02hhu:",
-						&d1.year, &d1.month, &d1.day);
-				switch (rc) {
-				default:
-					d1.year = 0xFFFF;
-				case 1:
-					d1.month = 0xFF;
-				case 2:
-					d1.day = 0xFF;
-				case 3:
-					break;
-				}
+			rc = wxr_date_range_parse_loosely(&d0, &d1, argv[i]);
+			if (rc == 0)
 				continue;
-			}
 
-			do_one(wxr, d0, d1, str);
+			do_one(wxr, d0, d1, argv[i]);
 		}
 	}
 
