@@ -154,6 +154,9 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	int gradiant[12] = { 0x14, 0x15, 0x39, 0x5d, 0x81, 0xa5,
 			     0xc9, 0xc8, 0xc7, 0xc6, 0xc5, 0xc4 };
 
+	int best_lifted[MAX_REPS] = { 0, };
+	int best_col[MAX_REPS] = { 0, };
+
 	int i = 0;
 	for (GList *e = g_list_first(st.records); e; e = e->next, i++) {
 		struct record *rec = e->data;
@@ -169,6 +172,13 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 
 		const char *coltxt = fg(col);
 		const char *coldim = fg(BRIGHT_BLACK);
+
+		int r = rec->best_ent->reps - 1;
+		g_assert(r>=0 && r<MAX_REPS);
+		if (best_lifted[r] < rec->best_ent->weight) {
+			best_lifted[r] = rec->best_ent->weight;
+			best_col[r] = col;
+		}
 
 		printf("%s%s%s | %4u | %5.1f | %-*s | %s%5.1f%s |",
 		       coltxt, wxr_date_str(rec->ses->date), COL_RESET,
@@ -201,6 +211,16 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		printf(" %3u |", r);
 	}
 	puts("");
+
+	printf("%*s |",
+	       36 + st.max_lift_width,
+	       "best weight lifted");
+	for (int r=0; r<MAX_REPS; r++) {
+		const char *colrep = fg(best_col[r]);
+		printf(" %s%3u%s |", colrep, best_lifted[r], COL_RESET);
+	}
+	puts("");
+
 
 	state_cleanup(&st);
 }
