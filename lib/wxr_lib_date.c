@@ -108,6 +108,6 @@ int wxr_date_range_parse_loosely(wxr_date *d0, wxr_date *d1, const char *str)
 	char *s1 = ch + 1;
 
 	wxr_date_parse_loosely(d0, s0, false);
-	wxr_date_parse_loosely(d1, s1, false);
+	wxr_date_parse_loosely(d1, s1, true);
 	return 0;
 }
