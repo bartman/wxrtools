@@ -148,33 +148,51 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 
 	st.records = g_list_sort(st.records, record_comar);
 
-	for (GList *e = g_list_first(st.records); e; e = e->next) {
+	wxr_date today = wxr_date_today(&error);
+	FATAL_ERROR(error);
+
+	int gradiant[12] = { 0x14, 0x15, 0x39, 0x5d, 0x81, 0xa5,
+			     0xc9, 0xc8, 0xc7, 0xc6, 0xc5, 0xc4 };
+
+	int i = 0;
+	for (GList *e = g_list_first(st.records); e; e = e->next, i++) {
 		struct record *rec = e->data;
 
-		printf("%04u-%02u-%02u  | %5.1f | %-*s | %5.1f |",
-		       rec->ses->date.year,
-		       rec->ses->date.month,
-		       rec->ses->date.day,
+		int days = wxr_date_diff_days(today, rec->ses->date, &error);
+		FATAL_ERROR(error);
+
+		int g = i * 12 / st.count;
+		int col = gradiant[g];
+
+		if (days <= 7)
+			col = BRIGHT_YELLOW;
+
+		const char *coltxt = fg(col);
+		const char *coldim = fg(BRIGHT_BLACK);
+
+		printf("%s%s%s | %4u | %5.1f | %-*s | %s%5.1f%s |",
+		       coltxt, wxr_date_str(rec->ses->date), COL_RESET,
+		       days,
 		       rec->ses->body_weight,
 		       st.max_lift_width,
 		       rec->lift->name,
-		       rec->best_1rm);
+		       coltxt, rec->best_1rm, COL_RESET);
 		for (int r=1; r<=MAX_REPS; r++) {
-			if (r == rec->best_ent->reps) {
-				printf("%4.f |",
-				       rec->best_ent->weight);
-				continue;
-			}
+			const char *colrep = coldim;
+			if (r == rec->best_ent->reps)
+				colrep = coltxt;
+
 			printf("%s%4.f%s |",
-			       fg(BRIGHT_BLACK),
+			       colrep,
 			       wxr_weight_from_1rm_reps(rec->best_1rm, r),
 			       COL_RESET);
 		}
 		puts("");
 	}
 
-	printf("%-10s  | %-5s | %-*s | %5s |",
+	printf("%-10s | %4s | %-5s | %-*s | %5s |",
 	       "date",
+	       "days",
 	       "BW",
 	       st.max_lift_width,
 	       "lift",

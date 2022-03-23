@@ -7,11 +7,6 @@
 
 #include "blot.h"
 
-#define FATAL_ERROR(error) ({ \
-	if (unlikely (error)) \
-		g_error("%s:%u: %s", __func__, __LINE__, (error)->message); \
-})
-
 struct record {
 	const wxr_session *ses;
 	const wxr_lift    *lift;

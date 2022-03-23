@@ -100,3 +100,7 @@ static inline void __wxr_set_error_unix(GError **error, int errno_code,
 		return _ret; \
 })
 
+#define FATAL_ERROR(error) ({ \
+	if (unlikely (error)) \
+		g_error("%s:%u: %s", __func__, __LINE__, (error)->message); \
+})

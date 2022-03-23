@@ -1,11 +1,32 @@
 #define _GNU_SOURCE
+#define _POSIX_C_SOURCE
 #include <glib.h>
 #include <time.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #include "wxr_date.h"
 #include "wxr_types.h"
 #include "wxr_error.h"
+
+wxr_date wxr_date_today(GError **error)
+{
+	wxr_date date = { .word = 0 };
+
+	struct timeval tv;
+	int rc = gettimeofday(&tv, NULL);
+	RETURN_ERROR(rc<0, date, error, "gettimeofday()");
+
+	struct tm *tm, _tm;
+	tm = localtime_r(&tv.tv_sec, &_tm);
+	RETURN_ERROR(!tm, date, error, "gettimeofday()");
+
+	date.year  = tm->tm_year + 1900;
+	date.month = tm->tm_mon + 1;
+	date.day   = tm->tm_mday;
+
+	return date;
+}
 
 int wxr_date_to_tm(wxr_date date, struct tm *tm, GError **error)
 {

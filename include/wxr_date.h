@@ -6,6 +6,7 @@
 #define WXR_DATE_FORMAT "%04hu-%02hhu-%02hhu"
 #define WXR_DATE_SIZE   12
 
+extern wxr_date wxr_date_today(GError **error);
 extern int wxr_date_to_tm(wxr_date date, struct tm *tm, GError **error);
 extern int wxr_date_to_time(wxr_date date, time_t *t, GError **error);
 extern long wxr_date_diff_seconds(wxr_date first, wxr_date second, GError **error);
