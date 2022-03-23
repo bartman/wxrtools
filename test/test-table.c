@@ -180,9 +180,9 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 			best_col[r] = col;
 		}
 
-		printf("%s%s%s | %4u | %5.1f | %-*s | %s%5.1f%s |",
+		printf("%s%s%s | %s%4u%s | %5.1f | %-*s | %s%5.1f%s |",
 		       coltxt, wxr_date_str(rec->ses->date), COL_RESET,
-		       days,
+		       coltxt, days, COL_RESET,
 		       rec->ses->body_weight,
 		       st.max_lift_width,
 		       rec->lift->name,
@@ -200,7 +200,9 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		puts("");
 	}
 
-	printf("%-10s | %4s | %-5s | %-*s | %5s |",
+	printf("%s%s%-10s | %4s | %-5s | %-*s | %5s |",
+	       bg(0x11),
+	       fg(0xE2),
 	       "date",
 	       "days",
 	       "BW",
@@ -210,7 +212,7 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	for (int r=1; r<=MAX_REPS; r++) {
 		printf(" %3u |", r);
 	}
-	puts("");
+	printf("%s\n", COL_RESET);
 
 	printf("%*s |",
 	       36 + st.max_lift_width,
