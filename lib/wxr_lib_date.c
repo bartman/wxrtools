@@ -7,8 +7,6 @@
 #include "wxr_types.h"
 #include "wxr_error.h"
 
-#define WXR_DATE_FORMAT "%04hu-%02hhu-%02hhu"
-
 int wxr_date_to_tm(wxr_date date, struct tm *tm, GError **error)
 {
 	memset(tm, 0, sizeof(*tm));
