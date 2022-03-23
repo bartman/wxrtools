@@ -31,9 +31,6 @@ struct state {
 	wxr_date d0, d1;
 	const char * match;
 
-	const wxr_session *curr_ses;
-	const wxr_lift    *curr_lift;
-
 	struct record     *curr_rec;
 
 	unsigned count;
@@ -71,25 +68,21 @@ static long filter_ses(const wxr_ctx *wxr, const wxr_session *ses,
 	if (wxr_date_compare(st->d1, ses->date) <= 0)
 		return 0;
 
-	st->curr_ses = ses;
-
 	return 1;
 }
-static long filter_lift(const wxr_ctx *wxr, const wxr_lift *lift,
-			void *opaque, GError **error)
+static long filter_lift(const wxr_ctx *wxr, const wxr_session *ses,
+			const wxr_lift *lift, void *opaque, GError **error)
 {
 	struct state *st = opaque;
 
 	if (!strstr(lift->name, st->match))
 		return 0;
 
-	st->curr_lift = lift;
-
 	struct record *rec = st->curr_rec;
 	if (!rec || record_used(rec))
 		rec = st->curr_rec = g_malloc0(sizeof(struct record));
 
-	rec->ses = st->curr_ses;
+	rec->ses = ses;
 	rec->lift = lift;
 
 	return 1;
@@ -119,8 +112,8 @@ long process(const wxr_ctx *wxr,
 	if (rec->intensity < ent->weight)
 		rec->intensity = ent->weight;
 
-	g_assert_cmpint((uintptr_t)rec->ses, ==, (uintptr_t)st->curr_ses);
-	g_assert_cmpint((uintptr_t)rec->lift, ==, (uintptr_t)st->curr_lift);
+	g_assert_cmpint((uintptr_t)rec->ses, ==, (uintptr_t)ses);
+	g_assert_cmpint((uintptr_t)rec->lift, ==, (uintptr_t)lift);
 
 	if (addit) {
 		st->records = g_list_append(st->records, rec);

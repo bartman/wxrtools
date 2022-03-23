@@ -20,8 +20,9 @@ extern long wxr_ctx_enumerate(const wxr_ctx *wxr, const wxr_enumerate_ent_cb_fn,
 
 typedef long (*wxr_filter_ses_cb_fn)(const wxr_ctx *wxr, const wxr_session *ses,
 					void *opaque, GError **error);
-typedef long (*wxr_filter_lift_cb_fn)(const wxr_ctx *wxr, const wxr_lift *lift,
-					void *opaque, GError **error);
+typedef long (*wxr_filter_lift_cb_fn)(const wxr_ctx *wxr, const wxr_session *ses,
+				      const wxr_lift *lift, void *opaque,
+				      GError **error);
 extern long wxr_ctx_filter_enumerate(const wxr_ctx *wxr,
 			      wxr_filter_ses_cb_fn,
 			      wxr_filter_lift_cb_fn,

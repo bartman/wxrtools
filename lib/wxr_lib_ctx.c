@@ -188,7 +188,7 @@ long wxr_ctx_filter_enumerate(const wxr_ctx *wxr,
 		if (!rc) continue;
 
 		wxr_session_for_each_lift(ses, j, lift) {
-			rc = filter_lift(wxr, lift, opaque, error);
+			rc = filter_lift(wxr, ses, lift, opaque, error);
 			if (rc<0) return rc;
 			if (!rc) continue;
 

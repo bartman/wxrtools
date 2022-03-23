@@ -6,9 +6,6 @@
 struct state {
 	const char * match;
 
-	const wxr_session *curr_ses;
-	const wxr_lift    *curr_lift;
-
 	float best_1rm;
 	const wxr_session *best_ses;
 	const wxr_lift    *best_lift;
@@ -18,21 +15,17 @@ struct state {
 static long filter_ses(const wxr_ctx *wxr, const wxr_session *ses,
 		       void *opaque, GError **error)
 {
-	struct state *st = opaque;
-
-	st->curr_ses = ses;
+	//struct state *st = opaque;
 
 	return 1;
 }
-static long filter_lift(const wxr_ctx *wxr, const wxr_lift *lift,
-			void *opaque, GError **error)
+static long filter_lift(const wxr_ctx *wxr, const wxr_session *ses,
+			const wxr_lift *lift, void *opaque, GError **error)
 {
 	struct state *st = opaque;
 
 	if (!strstr(lift->name, st->match))
 		return 0;
-
-	st->curr_lift = lift;
 
 	return 1;
 }
@@ -50,8 +43,8 @@ long process(const wxr_ctx *wxr,
 	if (st->best_1rm < ent_1rm) {
 		st->best_1rm  = ent_1rm;
 		st->best_ent  = ent;
-		st->best_lift = st->curr_lift;
-		st->best_ses  = st->curr_ses;
+		st->best_lift = lift;
+		st->best_ses  = ses;
 	}
 
 	return 1;
