@@ -6,6 +6,7 @@ SET(TEST_EXECUTABLES
         test-summary
         test-best
         test-table
+        test-plot
 )
 
 foreach(test ${TEST_EXECUTABLES})

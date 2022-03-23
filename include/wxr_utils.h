@@ -31,3 +31,7 @@ static inline bool isvspace(char ch)
 		return false;
 	}
 }
+
+/* allocates a single buffer that contains an array of strings pointers, and
+ * the strings themselves. the entire structure is freed with g_free() after */
+extern char ** g_malloc_strv(size_t count, size_t size);

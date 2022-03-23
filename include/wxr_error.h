@@ -75,6 +75,7 @@ static inline void __wxr_set_error_unix(GError **error, int errno_code,
 	__wxr_set_error_unix(_error,errno,__func__,__LINE__,_format,##_a)
 
 
+#undef RETURN_ERRORx
 #define RETURN_ERRORx(_condition,_ret,_error,_errno_code,_format,_a...) ({ \
 	if (unlikely (_condition)) { \
 		wxr_set_error_unix(_error,_errno_code,_format,##_a); \
