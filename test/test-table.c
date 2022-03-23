@@ -24,6 +24,7 @@ struct state {
 
 	struct record     *curr_rec;
 
+	unsigned max_lift_width;
 	unsigned count;
 	GList *records;
 };
@@ -109,6 +110,10 @@ long process(const wxr_ctx *wxr,
 		if (addit) {
 			st->records = g_list_append(st->records, rec);
 			st->count ++;
+
+			size_t width = strlen(lift->name);
+			if (st->max_lift_width < width)
+				st->max_lift_width = width;
 #if 0
 			printf("added...\n\t");
 			wxr_session_fprintf(stdout, rec->ses);
@@ -153,20 +158,21 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	for (GList *e = g_list_first(st.records); e; e = e->next) {
 		struct record *rec = e->data;
 
-		printf("%04u-%02u-%02u  | %.1f | %-10s | %5.1f | ",
+		printf("%04u-%02u-%02u  | %.1f | %-*s | %5.1f | ",
 		       rec->ses->date.year,
 		       rec->ses->date.month,
 		       rec->ses->date.day,
 		       rec->ses->body_weight,
+		       st.max_lift_width,
 		       rec->lift->name,
 		       rec->best_1rm);
 		for (int r=1; r<=MAX_REPS; r++) {
 			if (r == rec->best_ent->reps) {
-				printf("%.f |",
+				printf("%4.f |",
 				       rec->best_ent->weight);
 				continue;
 			}
-			printf("%s%.f%s |",
+			printf("%s%4.f%s |",
 			       fg(BRIGHT_BLACK),
 			       wxr_weight_from_1rm_reps(rec->best_1rm, r),
 			       COL_RESET);
