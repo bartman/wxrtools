@@ -23,6 +23,7 @@ build:bullseye:
         stage: build
         image: debian:bullseye
         before_script:
+                - apt update -qq
                 - ./dependencies.sh
                 - git submodule update --init
         script:
@@ -40,6 +41,7 @@ build:buster:
         stage: build
         image: debian:buster
         before_script:
+                - apt update -qq
                 - ./dependencies.sh
                 - git submodule update --init
         script:
@@ -57,6 +59,7 @@ build:stretch:
         stage: build
         image: debian:stretch
         before_script:
+                - apt update -qq
                 - ./dependencies.sh
                 - git submodule update --init
         script:
