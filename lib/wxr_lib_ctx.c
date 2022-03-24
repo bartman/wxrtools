@@ -1,6 +1,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <strings.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 
