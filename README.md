@@ -63,3 +63,21 @@ After cloning this repository...
 git submodule update --init
 make
 ```
+
+## examples
+
+Getting summary of all lifts...
+
+<img src='examples/test-summary.png'>
+
+Table showing best recent lifts...
+
+<img src='examples/test-table.png'>
+
+Plot body weight, volume, efficiency, intensity, and reps...
+
+<img src='examples/test-plot.png'>
+
+## goals
+
+Eventually these tools will be able to sync bidirectionally with the WxR website.
