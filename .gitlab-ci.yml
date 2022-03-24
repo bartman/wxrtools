@@ -1,0 +1,71 @@
+# YML documentation: https://docs.gitlab.com/ee/ci/yaml/
+
+# image created wtih some base packages present
+# https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-debian-9
+#image: debian-thikra
+
+#include:
+#- template: Security/SAST.gitlab-ci.yml
+
+#include:
+#- template: Security/SAST.gitlab-ci.yml
+#- template: Security/Secret-Detection.gitlab-ci.yml
+
+variables:
+        SAST_DISABLE_DIND: "true"
+        GIT_SUBMODULE_STRATEGY: recursive
+
+stages:
+        - build
+
+build:bullseye:
+        # see if we can build on Debian 11
+        stage: build
+        image: debian:bullseye
+        before_script:
+                - ./dependencies.sh
+                - git submodule update --init
+        script:
+                - make
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - build/lib/*.so
+                        - build/lib/*.a
+                        - build/test/test-*
+        when: always
+
+build:buster:
+        # see if we can build on Debian 10
+        stage: build
+        image: debian:buster
+        before_script:
+                - ./dependencies.sh
+                - git submodule update --init
+        script:
+                - make
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - build/lib/*.so
+                        - build/lib/*.a
+                        - build/test/test-*
+        when: always
+
+build:stretch:
+        # see if we can build on Debian 9
+        stage: build
+        image: debian:stretch
+        before_script:
+                - ./dependencies.sh
+                - git submodule update --init
+        script:
+                - make
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - build/lib/*.so
+                        - build/lib/*.a
+                        - build/test/test-*
+        when: always
+
