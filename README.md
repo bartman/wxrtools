@@ -1,4 +1,4 @@
-#wrxtools
+# wrxtools
 
 This package implement a C library and tools for parsing
 [Weigh X Reps](http://weightxreps.net) website log format.
@@ -80,4 +80,9 @@ Plot body weight, volume, efficiency, intensity, and reps...
 
 ## goals
 
-Eventually these tools will be able to sync bidirectionally with the WxR website.
+Eventually these tools will be able to
+* sync bidirectionally with the WxR website,
+* support programs (5/3/1, SS, 5x5, etc),
+
+
+
