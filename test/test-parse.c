@@ -24,7 +24,7 @@ int main(int argc, char * argv[])
 		       ses->date.year, ses->date.month, ses->date.day,
 		       ses->body_weight);
 		wxr_session_for_each_lift(ses, j, lift) {
-			printf("  %zu #%s\n", j, lift->name);
+			printf("  %zu %s\n", j, lift->name);
 			wxr_lift_for_each_entry(lift, k, ent) {
 				printf("    %zu %g x %u x %u\n", k,
 				       ent->weight, ent->reps, ent->sets);

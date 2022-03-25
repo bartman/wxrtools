@@ -46,8 +46,8 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 			while (q<e && *q != '\n')
 				q++;
 
-			n = q-p-1;
-			g_autofree char *exercise = g_strndup(p+1, n);
+			n = q-p;
+			g_autofree char *exercise = g_strndup(p, n);
 
 			lift = wxr_session_add_lift(ses, exercise, error);
 			if (!lift)
