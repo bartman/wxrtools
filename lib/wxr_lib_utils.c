@@ -27,6 +27,7 @@ char ** g_malloc_strv(size_t count, size_t size)
 	char *p = (void*)array + array_size;
 
 	for (size_t i=0; i<count; i++) {
+		*p = 0;
 		array[i] = p;
 		p += size;
 	}
