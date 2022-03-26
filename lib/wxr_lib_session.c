@@ -42,16 +42,19 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 			}
 		}
 		else if (*p == '#') {
-			const char *q = p+1;
-			while (q<e && *q != '\n')
+			const char *q = p+1, *r = q;
+			while (q<e && *q != '\n') {
+				if (!isspace(*q)) r=q;
 				q++;
+			}
 
-			n = q-p;
-			g_autofree char *exercise = g_strndup(p, n);
-
-			lift = wxr_session_add_lift(ses, exercise, error);
-			if (!lift)
-				return false;
+			n = r-p;
+			if (n > 1) {
+				g_autofree char *exercise = g_strndup(p, n);
+				lift = wxr_session_add_lift(ses, exercise, error);
+				if (!lift)
+					return false;
+			}
 
 			p = q+1;
 			continue;
