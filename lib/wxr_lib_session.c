@@ -44,7 +44,7 @@ bool wxr_session_init(wxr_session *ses, wxr_date date,
 		else if (*p == '#') {
 			const char *q = p+1, *r = q;
 			while (q<e && *q != '\n') {
-				if (!isspace(*q)) r=q;
+				if (!isspace(*q)) r=q+1;
 				q++;
 			}
 
