@@ -161,9 +161,11 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	wxr_date today = wxr_date_today(&error);
 	FATAL_ERROR(error);
 
-	int gradiant[16] = {
-		0x14, 0x15, 0x39, 0x5d, 0x81, 0xa5, 0xc9, 0xc8,
-		0xc7, 0xc6, 0xc5, 0xc4, 0xca, 0xd0, 0xd6, 0xdc };
+	int gradiant[] = {
+		0x23, 0x24, 0x25, 0x20, 0x21, 0x3f, 0x39, 0x5d,
+		0x81, 0xa5, 0xc9, 0xc8, 0xc7, 0xc6, 0xc5, 0xc4,
+		0xca, 0xd0, 0xd6, 0xdc };
+	const unsigned gradiant_size = sizeof(gradiant)/sizeof(*gradiant);
 
 	int best_lifted[MAX_REPS] = { 0, };
 	int best_col[MAX_REPS] = { 0, };
@@ -179,9 +181,9 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		FATAL_ERROR(error);
 
 #if 0
-		int g = i * 16 / st.count;
+		int g = i * gradiant_size / st.count;
 #else
-		int g = days_since_start * 16 / total_days;
+		int g = days_since_start * gradiant_size / total_days;
 #endif
 		int col = gradiant[g];
 
