@@ -145,15 +145,25 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	if (rc<0)
 		g_error("%s", error->message);
 
-	printf("%s count = %u\n", match, st.count);
+	struct record *oldest = g_list_first(st.records)->data;
+	wxr_date start = oldest->ses->date;
+
+	struct record *newest = g_list_last(st.records)->data;
+	wxr_date end = newest->ses->date;
+
+	int total_days = wxr_date_diff_days(end, start, &error);
+	FATAL_ERROR(error);
+
+	printf("%s count = %u, days = %d\n", match, st.count, total_days);
 
 	st.records = g_list_sort(st.records, record_comar);
 
 	wxr_date today = wxr_date_today(&error);
 	FATAL_ERROR(error);
 
-	int gradiant[12] = { 0x14, 0x15, 0x39, 0x5d, 0x81, 0xa5,
-			     0xc9, 0xc8, 0xc7, 0xc6, 0xc5, 0xc4 };
+	int gradiant[16] = {
+		0x14, 0x15, 0x39, 0x5d, 0x81, 0xa5, 0xc9, 0xc8,
+		0xc7, 0xc6, 0xc5, 0xc4, 0xca, 0xd0, 0xd6, 0xdc };
 
 	int best_lifted[MAX_REPS] = { 0, };
 	int best_col[MAX_REPS] = { 0, };
@@ -162,13 +172,20 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	for (GList *e = g_list_first(st.records); e; e = e->next, i++) {
 		struct record *rec = e->data;
 
-		int days = wxr_date_diff_days(today, rec->ses->date, &error);
+		int days_ago = wxr_date_diff_days(today, rec->ses->date, &error);
 		FATAL_ERROR(error);
 
-		int g = i * 12 / st.count;
+		int days_since_start = wxr_date_diff_days(rec->ses->date, start, &error);
+		FATAL_ERROR(error);
+
+#if 0
+		int g = i * 16 / st.count;
+#else
+		int g = days_since_start * 16 / total_days;
+#endif
 		int col = gradiant[g];
 
-		if (days <= 7)
+		if (days_ago <= 7)
 			col = BRIGHT_YELLOW;
 
 		const char *coltxt = fg(col);
@@ -183,7 +200,7 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 
 		printf("%s%s%s | %s%4u%s | %5.1f | %-*s | %s%5.1f%s |",
 		       coltxt, wxr_date_str(rec->ses->date), COL_RESET,
-		       coltxt, days, COL_RESET,
+		       coltxt, days_ago, COL_RESET,
 		       rec->ses->body_weight,
 		       st.max_lift_width,
 		       rec->lift->name,
