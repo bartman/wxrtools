@@ -86,8 +86,10 @@ long process(const wxr_ctx *wxr,
 {
 	struct state *st = opaque;
 
+#if 0
 	if (!ent->reps || ent->reps > MAX_REPS)
 		return 0;
+#endif
 
 	struct record *rec = st->curr_rec;
 
@@ -167,8 +169,8 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		0xca, 0xd0, 0xd6, 0xdc };
 	const unsigned gradiant_size = sizeof(gradiant)/sizeof(*gradiant);
 
-	int best_lifted[MAX_REPS] = { 0, };
-	int best_col[MAX_REPS] = { 0, };
+	int best_lifted[MAX_REPS+1] = { 0, };
+	int best_col[MAX_REPS+1] = { 0, };
 
 	int i = 0;
 	for (GList *e = g_list_first(st.records); e; e = e->next, i++) {
@@ -194,11 +196,24 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		const char *coldim = fg(BRIGHT_BLACK);
 
 		int r = rec->best_ent->reps - 1;
-		g_assert(r>=0 && r<MAX_REPS);
+		if (r<0) r=0;
+		if (r>MAX_REPS) r=MAX_REPS;
+		g_assert(r>=0 && r<=MAX_REPS);
 		if (best_lifted[r] < rec->best_ent->weight) {
 			best_lifted[r] = rec->best_ent->weight;
 			best_col[r] = col;
 		}
+
+		char margin[64];
+		if (r<MAX_REPS)
+			*margin = 0;
+		else
+			snprintf(margin, sizeof(margin),
+				 " %s%g%s x %u",
+				 coltxt,
+				 rec->best_ent->weight,
+				 COL_RESET,
+				 rec->best_ent->reps);
 
 		printf("%s%s%s | %s%4u%s | %5.1f | %-*s | %s%5.1f%s |",
 		       coltxt, wxr_date_str(rec->ses->date), COL_RESET,
@@ -217,7 +232,7 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 			       wxr_weight_from_1rm_reps(rec->best_1rm, r),
 			       COL_RESET);
 		}
-		puts("");
+		puts(margin);
 	}
 
 	printf("%s%s%-10s | %4s | %-5s | %-*s | %5s |",
