@@ -22,6 +22,8 @@ struct state {
 
 	struct record     *curr_rec;
 
+	float best_1rm_for_reps[MAX_REPS];
+
 	unsigned max_lift_width;
 	unsigned count;
 	GList *records;
@@ -92,8 +94,22 @@ long process(const wxr_ctx *wxr,
 #endif
 
 	struct record *rec = st->curr_rec;
-
 	float ent_1rm = wxr_entry_1rm(ent);
+
+	if (ent->reps < MAX_REPS) {
+		/* this has a reasonable number of reps */
+		if (st->best_1rm_for_reps[ent->reps] < ent_1rm) {
+			/* this is a new record for this rep range */
+			st->best_1rm_for_reps[ent->reps] = ent_1rm;
+			if (rec->best_1rm) {
+				/* allocate a new record */
+				rec = st->curr_rec = g_malloc0(sizeof(struct record));
+				rec->ses = ses;
+				rec->lift = lift;
+			}
+		}
+	}
+
 	if (rec->best_1rm < ent_1rm) {
 		bool addit = !rec->best_ent;
 
