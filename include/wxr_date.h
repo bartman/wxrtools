@@ -15,7 +15,8 @@ extern int wxr_date_diff_days(wxr_date first, wxr_date second, GError **error);
 extern uint64_t wxr_date_number(wxr_date date);
 extern int wxr_date_to_str(wxr_date date, char *str, size_t size);
 #define wxr_date_str(_date) ({ \
-	char _buf[WXR_DATE_SIZE]; _buf[0] = 0; \
+	char *_buf = alloca(WXR_DATE_SIZE); \
+	_buf[0] = 0; \
 	int _rc = wxr_date_to_str(_date, _buf, WXR_DATE_SIZE); \
 	if (_rc<0) strcpy(_buf, "<bad>"); \
 	_buf; \
