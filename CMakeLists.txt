@@ -22,7 +22,7 @@ PKG_CHECK_MODULES(GIOUNIX REQUIRED gio-unix-2.0>=2.44)
 SET(CMAKE_C_STANDARD 99)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-        add_definitions(-Wall -Werror -std=gnu99 -Wno-variadic-macros)
+        add_definitions(-Wall -Werror -Wno-variadic-macros)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 include(GetGitRevisionDescription)
