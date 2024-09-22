@@ -229,34 +229,39 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		reps[i] = rec->reps;
 	}
 
-	rows = (rows / 5) - 1;
+	rows -= 3;
+	int rows_s = (rows / 5);
+	int rows_b = rows - (4 * rows_s);
+
+	rows_s --;
+	rows_b --;
 
 	/* --------- */
 
 	plot_one(8, "body_weight", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, body_weight,
 		 xlabel_count, datelabels,
-		 cols, rows);
+		 cols, rows_s);
 
 	plot_one(9, "volume", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, volume,
 		 xlabel_count, datelabels,
-		 cols, rows);
+		 cols, rows_s);
 
 	plot_one(10, "efficiency", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, efficiency,
 		 xlabel_count, datelabels,
-		 cols, rows);
+		 cols, rows_s);
 
 	plot_one(11, "intensity", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, intensity,
 		 xlabel_count, datelabels,
-		 cols, rows);
+		 cols, rows_b);
 
 	plot_one(12, "reps", BLOT_DATA_(INT32, INT32),
 		 st.count, date, reps,
 		 xlabel_count, datelabels,
-		 cols, rows);
+		 cols, rows_s);
 
 	/* --------- */
 
