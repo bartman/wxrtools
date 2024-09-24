@@ -18,6 +18,24 @@ variables:
 stages:
         - build
 
+build:bookworm:
+        # see if we can build on Debian 12
+        stage: build
+        image: debian:bookworm
+        before_script:
+                - apt update -qq
+                - ./dependencies.sh -y
+                - git submodule update --init
+        script:
+                - make
+        artifacts:
+                expire_in: 1 week
+                paths:
+                        - build/lib/*.so
+                        - build/lib/*.a
+                        - build/test/test-*
+        when: always
+
 build:bullseye:
         # see if we can build on Debian 11
         stage: build
@@ -35,40 +53,3 @@ build:bullseye:
                         - build/lib/*.a
                         - build/test/test-*
         when: always
-
-build:buster:
-        # see if we can build on Debian 10
-        stage: build
-        image: debian:buster
-        before_script:
-                - apt update -qq
-                - ./dependencies.sh -y
-                - git submodule update --init
-        script:
-                - make
-        artifacts:
-                expire_in: 1 week
-                paths:
-                        - build/lib/*.so
-                        - build/lib/*.a
-                        - build/test/test-*
-        when: always
-
-build:stretch:
-        # see if we can build on Debian 9
-        stage: build
-        image: debian:stretch
-        before_script:
-                - apt update -qq
-                - ./dependencies.sh -y
-                - git submodule update --init
-        script:
-                - make
-        artifacts:
-                expire_in: 1 week
-                paths:
-                        - build/lib/*.so
-                        - build/lib/*.a
-                        - build/test/test-*
-        when: always
-
