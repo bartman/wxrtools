@@ -48,4 +48,10 @@ foreach(wxr wxr_a wxr_so)
                 ${GIOUNIX_LIBRARIES}
         )
 
+        TARGET_LINK_DIRECTORIES(${wxr} PRIVATE
+                ${GLIB2_LIBRARY_DIRS}
+                ${GIO_LIBRARY_DIRS}
+                ${GIOUNIX_LIBRARY_DIRS}
+        )
+
 endforeach(wxr)
