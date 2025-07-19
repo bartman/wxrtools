@@ -10,34 +10,71 @@ SUDO = $(shell which sudo)
 DESTDIR    ?=
 BUILDDIR    = build
 
+Q = $(if ${V},,@)
+
 all: build
 
 # ---------------------------------------------------------------------------
 
 BUILDNINJA  = ${BUILDDIR}/build.ninja
 CMAKEFLAGS  = -G Ninja
-CMAKEFLAGS += -DCMAKE_BUILD_TYPE=Debug
 
-${BUILDNINJA}: Makefile CMakeLists.txt
-	mkdir -p ${BUILDDIR}
-	cd ${BUILDDIR} && cmake ${CMAKEFLAGS} ..
+DEFAULT_TYPE = Release
+CURRENT_TYPE = $(shell sed -r -n -e 's/CMAKE_BUILD_TYPE:STRING=//p' ${BUILDDIR}/CMakeCache.txt 2>/dev/null)
+TYPE ?= $(if ${CURRENT_TYPE},${CURRENT_TYPE},${DEFAULT_TYPE})
+CMAKEFLAGS += -DCMAKE_BUILD_TYPE=${TYPE}
+
+# prefer clang over gcc
+ifneq ($(shell which clang),)
+CMAKEFLAGS += -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+else
+ifneq ($(shell which gcc),)
+CMAKEFLAGS += -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+else
+# otherwise use default
+endif
+endif
+
+ifneq (${TYPE},${CURRENT_TYPE})
+ifneq (${CURRENT_TYPE},)
+$(info ### switching from ${CURRENT_TYPE} to ${TYPE})
+endif
+.PHONY: ${BUILDNINJA}
+endif
 
 config: ${BUILDNINJA}
 
+${BUILDNINJA}: Makefile CMakeLists.txt
+	@echo "### setting up cmake in ${BUILDDIR} for ${TYPE}"
+	${Q}mkdir -p ${BUILDDIR}
+	${Q}cd ${BUILDDIR} && cmake ${CMAKEFLAGS} ..
+
+build/compile_commands.json: config
+
+COMPILE_COMMANDS = compile_commands.json
+${COMPILE_COMMANDS}: build/compile_commands.json
+	@echo "### linking compile_commands.json"
+	${Q}ln -fs $< $@
+
 build: ${BUILDNINJA}
-	ninja -C ${BUILDDIR}
+	@echo "### building in ${BUILDDIR}"
+	${Q}ninja -C ${BUILDDIR}
 
 clean:
-	ninja -C ${BUILDDIR} clean
+	@echo "### cleaning in ${BUILDDIR}"
+	${Q}ninja -C ${BUILDDIR} clean
 
 distclean:
-	rm -rf build
+	@echo "### removing ${BUILDDIR}"
+	${Q}rm -rf build
 
 install: build
-	DESTDIR=$(abspath ${DESTDIR}) ninja -C ${BUILDDIR} install
+	@echo "### installing from ${BUILDDIR}"
+	${Q}DESTDIR=$(abspath ${DESTDIR}) ninja -C ${BUILDDIR} install
 
 test: build
-	ninja -C ${BUILDDIR} test
+	@echo "### unit-testing from ${BUILDDIR}"
+	${Q}ninja -C ${BUILDDIR} test
 
 # ---------------------------------------------------------------------------
 

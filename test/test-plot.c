@@ -190,8 +190,8 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 
 	st.records = g_list_sort(st.records, record_comar_date);
 
-	int cols, rows;
-	blot_terminal_get_size(&cols, &rows, &error);
+	blot_dimensions term;
+	blot_terminal_get_size(&term, &error);
 	FATAL_ERROR(error);
 
 	int      *date        = g_malloc_n(st.count, sizeof(int));
@@ -201,7 +201,7 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	float    *intensity   = g_malloc_n(st.count, sizeof(float));
 	unsigned *reps        = g_malloc_n(st.count, sizeof(unsigned));
 
-	size_t xlabel_count = (cols*0.8)/15;
+	size_t xlabel_count = (term.cols*0.8)/15;
 	char    **datelabels  = g_malloc_strv(st.count, 16);
 
 	if (xlabel_count>st.count)
@@ -229,9 +229,9 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 		reps[i] = rec->reps;
 	}
 
-	rows -= 3;
-	int rows_s = (rows / 5);
-	int rows_b = rows - (4 * rows_s);
+	term.rows -= 3;
+	int rows_s = (term.rows / 5);
+	int rows_b = term.rows - (4 * rows_s);
 
 	rows_s --;
 	rows_b --;
@@ -241,27 +241,27 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	plot_one(8, "body_weight", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, body_weight,
 		 xlabel_count, datelabels,
-		 cols, rows_s);
+		 term.cols, rows_s);
 
 	plot_one(9, "volume", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, volume,
 		 xlabel_count, datelabels,
-		 cols, rows_s);
+		 term.cols, rows_s);
 
 	plot_one(10, "efficiency", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, efficiency,
 		 xlabel_count, datelabels,
-		 cols, rows_s);
+		 term.cols, rows_s);
 
 	plot_one(11, "intensity", BLOT_DATA_(INT32, FLOAT),
 		 st.count, date, intensity,
 		 xlabel_count, datelabels,
-		 cols, rows_b);
+		 term.cols, rows_b);
 
 	plot_one(12, "reps", BLOT_DATA_(INT32, INT32),
 		 st.count, date, reps,
 		 xlabel_count, datelabels,
-		 cols, rows_s);
+		 term.cols, rows_s);
 
 	/* --------- */
 
