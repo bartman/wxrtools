@@ -252,8 +252,8 @@ void do_one(wxr_ctx *wxr, wxr_date d0, wxr_date d1, const char *match)
 	}
 
 	printf("%s%s%-10s | %4s | %-5s | %-*s | %5s |",
-	       bg(0x11),
-	       fg(0xE2),
+	       bg(17),
+	       fg(226),
 	       "date",
 	       "days",
 	       "BW",
